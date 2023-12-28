@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { Select, type SelectProps  } from 'ant-design-vue'
 import { bitable } from '@lark-base-open/js-sdk';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 defineProps({
   placeholder: {
     type: String,
     default: '请选择表格'
+  },
+  tableId: {
+    type: String,
+    default: undefined
   }
 })
 
 const options = ref<SelectProps['options']>([])
-const currentValue = ref<SelectProps['value']>(undefined)
 bitable.base.getTableList().then(async (tableList) => {
   const list: SelectProps['options'] = []
   await Promise.all(tableList.map(async table => {
@@ -22,17 +25,7 @@ bitable.base.getTableList().then(async (tableList) => {
   options.value = list
 })
 
-
-bitable.base.getActiveTable().then(async (table) => {
-  const id = table.id
-  currentValue.value = id
-})
-
-watch(currentValue, (value) => {
-  console.log(value)
-})
-
 </script>
 <template>
-  <Select :options="options" :placeholder="placeholder" v-model:value="currentValue"></Select>
+  <Select :options="options" :placeholder="placeholder" :value="tableId" @change="(tableId) => $emit('update:tableId', tableId)"></Select>
 </template>
