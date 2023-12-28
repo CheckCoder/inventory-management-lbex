@@ -4,6 +4,7 @@ import FieldSelect from '@/components/FieldSelect.vue';
 import { Form, FormItem, RadioGroup, RadioButton, Input } from 'ant-design-vue'
 import { bitable } from '@lark-base-open/js-sdk';
 import { ref } from 'vue';
+import { findRecord } from '@/utils/table'
 
 const tableId = ref<string | undefined>(undefined)
 bitable.base.getActiveTable().then(async (table) => {
@@ -17,7 +18,7 @@ const logFieldId = ref<string | undefined>(undefined)
 const mode = ref<'in' | 'out'>('in')
 const code = ref<string | undefined>(undefined)
 
-const handleData = () => {
+const handleData = async () => {
   if (!tableId.value) {
     return
   }
@@ -30,6 +31,21 @@ const handleData = () => {
   if (!code.value) {
     return
   }
+
+  const record = await findRecord(tableId.value, (record) => {
+    if (!codeFieldId.value) {
+      return false
+    }
+
+    const codeField = record.fields[codeFieldId.value] as any
+    if (codeField?.text === code.value) {
+      return true
+    } else if (codeField?.[0]?.text === code.value) {
+      return true
+    }
+    return false
+  })
+  console.log(record)
 }
 
 </script>
