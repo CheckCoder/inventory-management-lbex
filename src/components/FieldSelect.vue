@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import { Select, type SelectProps  } from 'ant-design-vue'
-import { bitable } from '@lark-base-open/js-sdk';
+import { FieldType, bitable } from '@lark-base-open/js-sdk';
 import { ref, watchEffect } from 'vue';
 
-const props = defineProps({
-  placeholder: {
-    type: String,
-    default: '请选择字段'
-  },
-  tableId: {
-    type: String,
-    default: undefined
-  },
-  fieldId: {
-    type: String,
-    default: undefined
-  }
+const props = withDefaults(defineProps<{
+  placeholder?: string
+  tableId?: string
+  fieldId?: string
+  fieldType?: FieldType
+}>(), {
+  placeholder: '请选择字段',
 })
 
 const options = ref<SelectProps['options']>([])
