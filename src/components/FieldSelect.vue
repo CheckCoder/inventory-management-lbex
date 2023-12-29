@@ -16,7 +16,7 @@ const options = ref<SelectProps['options']>([])
 watchEffect(() => {
   if (!props.tableId) return
   bitable.base.getTable(props.tableId).then(async (table) => {
-    const fieldList = await table.getFieldList()
+    const fieldList = props.fieldType ? await table.getFieldListByType(props.fieldType) : await table.getFieldList()
     const list: SelectProps['options'] = []
     await Promise.all(fieldList.map(async field => {
       const name = await field.getName()
