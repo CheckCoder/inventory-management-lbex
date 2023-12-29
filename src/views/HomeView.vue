@@ -151,15 +151,15 @@ const handleData = async () => {
 </script>
 <template>
   <main class="px-5 pb-5">
-    <Form>
-      <FormItem label="仓库表格">
+    <Form :layout="'vertical'">
+      <FormItem label="仓库表格" required>
         <TableSelect v-model:table-id="tableId"></TableSelect>
       </FormItem>
-      <FormItem label="条码字段">
+      <FormItem label="条码字段" required>
         <FieldSelect v-model:table-id="tableId" v-model:field-id="codeFieldId" :field-type-list="[FieldType.Text]">
         </FieldSelect>
       </FormItem>
-      <FormItem label="出入库状态字段">
+      <FormItem label="出入库状态字段" required>
         <FieldSelect v-model:table-id="tableId" v-model:field-id="statusFieldId"
           :field-type-list="[FieldType.SingleSelect]"></FieldSelect>
       </FormItem>
@@ -167,13 +167,13 @@ const handleData = async () => {
         <FieldSelect v-model:table-id="tableId" v-model:field-id="logFieldId" :field-type-list="[FieldType.Text]">
         </FieldSelect>
       </FormItem>
-      <FormItem label="模式">
+      <FormItem label="模式" required>
         <RadioGroup v-model:value="mode">
           <RadioButton value="in">入库</RadioButton>
           <RadioButton value="out">出库</RadioButton>
         </RadioGroup>
       </FormItem>
-      <FormItem label="条码">
+      <FormItem label="条码" required>
         <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="code" @press-enter="onInput">
         <template #suffix>
           <Spin v-if="loading" :size="'small'">
