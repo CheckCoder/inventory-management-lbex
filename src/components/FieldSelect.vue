@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
   placeholder?: string
   tableId?: string
   fieldId?: string
-  fieldType?: FieldType[]
+  fieldTypeList?: FieldType[]
 }>(), {
   placeholder: '请选择字段',
 })
@@ -16,7 +16,7 @@ const options = ref<SelectProps['options']>([])
 watchEffect(() => {
   if (!props.tableId) return
   bitable.base.getTable(props.tableId).then(async (table) => {
-    const fieldList = props.fieldType ? (await Promise.all(props.fieldType.map(type => table.getFieldListByType(type)))).flat() : await table.getFieldList()
+    const fieldList = props.fieldTypeList ? (await Promise.all(props.fieldTypeList.map(type => table.getFieldListByType(type)))).flat() : await table.getFieldList()
     const list: SelectProps['options'] = []
     await Promise.all(fieldList.map(async field => {
       const name = await field.getName()
