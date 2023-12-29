@@ -50,7 +50,7 @@ bitable.base.getActiveTable().then(async (table) => {
 })
 
 const loading = ref(false)
-const onInput = async () => {
+const onSubmit = async () => {
   if (loading.value) {
     message.error('正在处理上条数据中，请稍候')
     return
@@ -59,10 +59,10 @@ const onInput = async () => {
   loading.value = true
   try {
     await handleData()
-    code.value = undefined
   } catch (error) {
     message.error(String(error))
   }
+  code.value = undefined
   loading.value = false
 }
 
@@ -199,7 +199,7 @@ const handleData = async () => {
         </RadioGroup>
       </FormItem>
       <FormItem label="条码" name="code">
-        <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="form.code" @press-enter="onInput">
+        <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="form.code" @press-enter="onSubmit">
         <template #suffix>
           <Spin v-if="loading" :size="'small'">
             <template #indicator>
