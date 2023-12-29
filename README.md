@@ -16,3 +16,7 @@
 ## 插件模板
 
 https://checkcai.feishu.cn/base/QPUcb811SaRw6QsPeUgcIBb6nPd?table=tblVLU2uI5X2vZlt&view=vewQ0ztb7W
+
+## 用户交流群
+
+https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=446uebce-5505-4ab8-98a0-2919278c7bb6
