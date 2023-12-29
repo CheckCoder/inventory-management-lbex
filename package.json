@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "@lark-base-open/js-sdk": "^0.3.5",
     "ant-design-vue": "4.x",
     "axios": "^1.6.2",

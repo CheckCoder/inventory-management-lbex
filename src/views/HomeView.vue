@@ -1,14 +1,12 @@
 <script setup lang="ts">
+import { Form, FormItem, RadioGroup, RadioButton, Input, message, Spin } from 'ant-design-vue'
+import { BarcodeOutlined, LoadingOutlined } from '@ant-design/icons-vue';
+import { FieldType, bitable, IOpenSegmentType } from '@lark-base-open/js-sdk';
+import type { IOpenSegment, ISingleSelectField, IOpenSingleSelect, ITextField } from '@lark-base-open/js-sdk';
+import { ref } from 'vue';
 import TableSelect from '@/components/TableSelect.vue'
 import FieldSelect from '@/components/FieldSelect.vue';
-import { Form, FormItem, RadioGroup, RadioButton, Input, message } from 'ant-design-vue'
-import { FieldType, bitable } from '@lark-base-open/js-sdk';
-import { ref } from 'vue';
 import { findRecord } from '@/utils/table'
-import type { IOpenSegment, ISingleSelectField } from '@lark-base-open/js-sdk';
-import type { IOpenSingleSelect } from '@lark-base-open/js-sdk';
-import type { ITextField } from '@lark-base-open/js-sdk';
-import { IOpenSegmentType } from '@lark-base-open/js-sdk';
 
 const tableId = ref<string | undefined>(undefined)
 bitable.base.getActiveTable().then(async (table) => {
@@ -21,6 +19,21 @@ const statusFieldId = ref<string | undefined>(undefined)
 const logFieldId = ref<string | undefined>(undefined)
 const mode = ref<'in' | 'out'>('in')
 const code = ref<string | undefined>(undefined)
+
+const loading = ref(false)
+const onInput = async () => {
+  if (loading.value) {
+    message.error('正在处理上条数据中，请稍候')
+    return
+  }
+  try {
+    await handleData()
+  } catch (error) {
+    message.error(String(error))
+  }
+  code.value = undefined
+  loading.value = false
+}
 
 const handleData = async () => {
   if (!tableId.value) {
@@ -142,13 +155,16 @@ const handleData = async () => {
         <TableSelect v-model:table-id="tableId"></TableSelect>
       </FormItem>
       <FormItem label="条码字段">
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="codeFieldId" :field-type-list="[FieldType.Text]"></FieldSelect>
+        <FieldSelect v-model:table-id="tableId" v-model:field-id="codeFieldId" :field-type-list="[FieldType.Text]">
+        </FieldSelect>
       </FormItem>
       <FormItem label="出入库状态字段">
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="statusFieldId" :field-type-list="[FieldType.SingleSelect]"></FieldSelect>
+        <FieldSelect v-model:table-id="tableId" v-model:field-id="statusFieldId"
+          :field-type-list="[FieldType.SingleSelect]"></FieldSelect>
       </FormItem>
       <FormItem label="日志字段">
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="logFieldId" :field-type-list="[FieldType.Text]"></FieldSelect>
+        <FieldSelect v-model:table-id="tableId" v-model:field-id="logFieldId" :field-type-list="[FieldType.Text]">
+        </FieldSelect>
       </FormItem>
       <FormItem label="模式">
         <RadioGroup v-model:value="mode">
@@ -157,10 +173,18 @@ const handleData = async () => {
         </RadioGroup>
       </FormItem>
       <FormItem label="条码">
-        <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="code" @press-enter="handleData"/>
+        <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="code" @press-enter="onInput">
+        <template #suffix>
+          <Spin v-if="true" :size="'small'">
+            <template #indicator>
+              <LoadingOutlined/>
+            </template>
+          </Spin>
+          <BarcodeOutlined v-else class="text-gray-500" />
+        </template>
+        </Input>
       </FormItem>
     </Form>
   </main>
 </template>
-<style scoped>
-</style>
+<style scoped></style>
