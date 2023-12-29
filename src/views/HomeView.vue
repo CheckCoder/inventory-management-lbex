@@ -79,6 +79,9 @@ const handleData = async () => {
   if (!code.value) {
     throw new Error('请输入条码')
   }
+  if (logFieldId.value === codeFieldId.value) {
+    throw new Error('日志字段不能与条码字段相同')
+  }
 
   const table = await bitable.base.getTableById(tableId.value)
   const codeField = await table.getFieldById<ITextField>(codeFieldId.value)
