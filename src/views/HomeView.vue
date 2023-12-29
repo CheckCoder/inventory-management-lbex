@@ -220,6 +220,11 @@ const handleData = async () => {
         </div>
       </FormItem>
     </Form>
+    <div class="flex flex-row text-sm justify-center items-center mt-20">
+      <Button type="link" href="https://checkcai.feishu.cn/base/QPUcb811SaRw6QsPeUgcIBb6nPd?table=ldx2WPdzOoLYVCHL" target="blank">使用文档</Button>
+      <span class="text-gray-400">|</span>
+      <Button type="link" href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=446uebce-5505-4ab8-98a0-2919278c7bb6" target="blank">用户交流群</Button>
+    </div>
   </main>
 </template>
 <style scoped></style>
