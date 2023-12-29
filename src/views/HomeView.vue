@@ -181,15 +181,15 @@ const handleData = async () => {
         <TableSelect v-model:table-id="form.tableId"></TableSelect>
       </FormItem>
       <FormItem label="条码字段" name="codeFieldId">
-        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.codeFieldId" :field-type-list="[FieldType.Text]">
+        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.codeFieldId" :field-type-list="[FieldType.Text]" placeholder="只支持文本字段">
         </FieldSelect>
       </FormItem>
       <FormItem label="出入库状态字段" name="statusFieldId">
         <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.statusFieldId"
-          :field-type-list="[FieldType.SingleSelect]"></FieldSelect>
+          :field-type-list="[FieldType.SingleSelect]" placeholder="只支持单选字段"></FieldSelect>
       </FormItem>
       <FormItem label="日志字段" name="logFieldId">
-        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.logFieldId" :field-type-list="[FieldType.Text]">
+        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.logFieldId" :field-type-list="[FieldType.Text]" placeholder="只支持文本字段">
         </FieldSelect>
       </FormItem>
       <FormItem label="模式" name="mode">
