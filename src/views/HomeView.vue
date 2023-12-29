@@ -29,10 +29,10 @@ const onInput = async () => {
   loading.value = true
   try {
     await handleData()
+    code.value = undefined
   } catch (error) {
     message.error(String(error))
   }
-  code.value = undefined
   loading.value = false
 }
 
