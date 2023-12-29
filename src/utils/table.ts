@@ -1,7 +1,7 @@
-import { type IRecord, bitable } from '@lark-base-open/js-sdk'
+import { type IRecord, bitable, type ITable } from '@lark-base-open/js-sdk'
 
-export async function findRecord(tableId: string, findFn: (record: IRecord) => boolean) {
-  const table = await bitable.base.getTable(tableId)
+export async function findRecord(tableOrId: string | ITable, findFn: (record: IRecord) => boolean) {
+  const table = typeof tableOrId === 'string' ? await bitable.base.getTableById(tableOrId) : tableOrId
   const recordsResponse = await table.getRecords({})
   const { records } = recordsResponse
 

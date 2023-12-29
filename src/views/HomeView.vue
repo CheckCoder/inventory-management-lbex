@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import TableSelect from '@/components/TableSelect.vue'
 import FieldSelect from '@/components/FieldSelect.vue';
-import { Form, FormItem, RadioGroup, RadioButton, Input } from 'ant-design-vue'
+import { Form, FormItem, RadioGroup, RadioButton, Input, message } from 'ant-design-vue'
 import { FieldType, bitable } from '@lark-base-open/js-sdk';
 import { ref } from 'vue';
 import { findRecord } from '@/utils/table'
+import type { IOpenSegment, ISingleSelectField } from '@lark-base-open/js-sdk';
+import type { IOpenSingleSelect } from '@lark-base-open/js-sdk';
+import type { ITextField } from '@lark-base-open/js-sdk';
+import { IOpenSegmentType } from '@lark-base-open/js-sdk';
 
 const tableId = ref<string | undefined>(undefined)
 bitable.base.getActiveTable().then(async (table) => {
@@ -32,20 +36,102 @@ const handleData = async () => {
     return
   }
 
-  const record = await findRecord(tableId.value, (record) => {
+  const table = await bitable.base.getTableById(tableId.value)
+  const codeField = await table.getFieldById<ITextField>(codeFieldId.value)
+  const statusField = await table.getFieldById<ISingleSelectField>(statusFieldId.value)
+  const logField = logFieldId.value ? await table.getFieldById<ITextField>(logFieldId.value) : null
+  const statusOptions = await statusField.getOptions()
+  let statusInOptionId: string | undefined
+  let statusOutOptionId: string | undefined
+  for (const option of statusOptions) {
+    if (option.name === '入库') {
+      statusInOptionId = option.id
+    } else if (option.name === '出库') {
+      statusOutOptionId = option.id
+    }
+  }
+  if (statusInOptionId === undefined) {
+    statusInOptionId = await statusField.addOption('入库')
+  }
+  if (statusOutOptionId === undefined) {
+    statusOutOptionId = await statusField.addOption('出库')
+  }
+
+  const record = await findRecord(table, (record) => {
     if (!codeFieldId.value) {
       return false
     }
-
-    const codeField = record.fields[codeFieldId.value] as any
-    if (codeField?.text === code.value) {
-      return true
-    } else if (codeField?.[0]?.text === code.value) {
+    const codeFieldValue = record.fields[codeFieldId.value] as IOpenSegment[] | null
+    if (!codeFieldValue) {
+      return false
+    }
+    if (codeFieldValue.length === 0) {
+      return false
+    } else if (codeFieldValue[0].text === code.value) {
       return true
     }
     return false
   })
-  console.log(record)
+  let recordId: string | undefined
+
+  if (record) {
+    const statusFieldValue = record.fields[statusFieldId.value] as IOpenSingleSelect || null
+    if (!statusFieldValue) {
+      message.error('存在该条码，但状态字段为空')
+      return
+    }
+    if (['入库', '出库'].indexOf(statusFieldValue.text) === -1) {
+      message.error('该条码状态异常')
+      return
+    }
+
+    if (mode.value === 'in') {
+      if (statusFieldValue.text === '入库') {
+        message.error('该条码已入库，请勿重复操作')
+        return
+      } else if (statusFieldValue.text === '出库') {
+        await statusField.setValue(record.recordId, statusInOptionId)
+      }
+    } else {
+      if (statusFieldValue.text === '出库') {
+        message.error('该条码已出库，请勿重复操作')
+        return
+      } else if (statusFieldValue.text === '入库') {
+        await statusField.setValue(record.recordId, statusOutOptionId)
+      }
+    }
+    recordId = record.recordId
+  } else {
+    if (mode.value === 'in') {
+      recordId = await table.addRecord([
+        await codeField.createCell(code.value),
+        await statusField.createCell(statusInOptionId),
+      ])
+    } else {
+      message.error('该条码不存在，无法出库')
+      return
+    }
+  }
+  if (logField) {
+    const logFieldValue = await logField.getValue(recordId)
+    if (logFieldValue) {
+      logField.setValue(recordId, [
+        ...logFieldValue,
+        {
+          type: IOpenSegmentType.Text,
+          text: `\n${new Date().toLocaleString()}：${mode.value === 'in' ? '入库' : '出库'}`,
+        },
+      ])
+    } else {
+      logField.setValue(recordId, [
+        {
+          type: IOpenSegmentType.Text,
+          text: `${new Date().toLocaleString()}：${mode.value === 'in' ? '入库' : '出库'}`,
+        },
+      ])
+    }
+  }
+  message.success(`${mode.value === 'in' ? '入库' : '出库'}成功`)
 }
 
 </script>
