@@ -1,24 +1,53 @@
 <script setup lang="ts">
-import { Form, FormItem, RadioGroup, RadioButton, Input, message, Spin } from 'ant-design-vue'
+import { Form, FormItem, RadioGroup, RadioButton, Input, message, Spin, type FormInstance } from 'ant-design-vue'
 import { BarcodeOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { FieldType, bitable, IOpenSegmentType } from '@lark-base-open/js-sdk';
 import type { IOpenSegment, ISingleSelectField, IOpenSingleSelect, ITextField } from '@lark-base-open/js-sdk';
-import { ref } from 'vue';
+import { ref, toRefs } from 'vue';
 import TableSelect from '@/components/TableSelect.vue'
 import FieldSelect from '@/components/FieldSelect.vue';
 import { findRecord } from '@/utils/table'
+import type { Rule } from 'ant-design-vue/es/form';
 
-const tableId = ref<string | undefined>(undefined)
+const formRef = ref<FormInstance>()
+const form = ref<{
+  tableId: string | undefined,
+  codeFieldId: string | undefined,
+  statusFieldId: string | undefined,
+  logFieldId: string | undefined,
+  mode: 'in' | 'out',
+  code: string | undefined,
+}>({
+  tableId: undefined,
+  codeFieldId: undefined,
+  statusFieldId: undefined,
+  logFieldId: undefined,
+  mode: 'in',
+  code: undefined,
+})
+const formRules: Record<string, Rule[]> = {
+  tableId: [
+    { required: true, message: '请选择仓库表格' },
+  ],
+  codeFieldId: [
+    { required: true, message: '请选择条码字段' },
+  ],
+  statusFieldId: [
+    { required: true, message: '请选择出入库状态字段' },
+  ],
+  mode: [
+    { required: true, message: '请选择模式' },
+  ],
+  code: [
+    { required: true, message: '请输入条码' },
+  ],
+}
+
+const { tableId, statusFieldId, codeFieldId, logFieldId, mode, code } = toRefs(form.value)
 bitable.base.getActiveTable().then(async (table) => {
   const id = table.id
   tableId.value = id
 })
-
-const codeFieldId = ref<string | undefined>(undefined)
-const statusFieldId = ref<string | undefined>(undefined)
-const logFieldId = ref<string | undefined>(undefined)
-const mode = ref<'in' | 'out'>('in')
-const code = ref<string | undefined>(undefined)
 
 const loading = ref(false)
 const onInput = async () => {
@@ -26,6 +55,7 @@ const onInput = async () => {
     message.error('正在处理上条数据中，请稍候')
     return
   }
+  await formRef.value?.validate()
   loading.value = true
   try {
     await handleData()
@@ -38,16 +68,16 @@ const onInput = async () => {
 
 const handleData = async () => {
   if (!tableId.value) {
-    return
+    throw new Error('请选择仓库表格')
   }
   if (!codeFieldId.value) {
-    return
+    throw new Error('请选择条码字段')
   }
   if (!statusFieldId.value) {
-    return
+    throw new Error('请选择出入库状态字段')
   }
   if (!code.value) {
-    return
+    throw new Error('请输入条码')
   }
 
   const table = await bitable.base.getTableById(tableId.value)
@@ -91,25 +121,21 @@ const handleData = async () => {
   if (record) {
     const statusFieldValue = record.fields[statusFieldId.value] as IOpenSingleSelect || null
     if (!statusFieldValue) {
-      message.error('存在该条码，但状态字段为空')
-      return
+      throw new Error('存在该条码，但状态字段为空')
     }
     if (['入库', '出库'].indexOf(statusFieldValue.text) === -1) {
-      message.error('该条码状态异常')
-      return
+      throw new Error('该条码状态异常')
     }
 
     if (mode.value === 'in') {
       if (statusFieldValue.text === '入库') {
-        message.error('该条码已入库，请勿重复操作')
-        return
+        throw new Error('该条码已入库，请勿重复操作')
       } else if (statusFieldValue.text === '出库') {
         await statusField.setValue(record.recordId, statusInOptionId)
       }
     } else {
       if (statusFieldValue.text === '出库') {
-        message.error('该条码已出库，请勿重复操作')
-        return
+        throw new Error('该条码已出库，请勿重复操作')
       } else if (statusFieldValue.text === '入库') {
         await statusField.setValue(record.recordId, statusOutOptionId)
       }
@@ -122,8 +148,7 @@ const handleData = async () => {
         await statusField.createCell(statusInOptionId),
       ])
     } else {
-      message.error('该条码不存在，无法出库')
-      return
+      throw new Error('该条码不存在，无法出库')
     }
   }
   if (logField) {
@@ -151,30 +176,30 @@ const handleData = async () => {
 </script>
 <template>
   <main class="px-5 pb-5">
-    <Form :layout="'vertical'">
-      <FormItem label="仓库表格" required>
-        <TableSelect v-model:table-id="tableId"></TableSelect>
+    <Form :layout="'vertical'" :model="form" :rules="formRules" ref="formRef">
+      <FormItem label="仓库表格" name="tableId">
+        <TableSelect v-model:table-id="form.tableId"></TableSelect>
       </FormItem>
-      <FormItem label="条码字段" required>
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="codeFieldId" :field-type-list="[FieldType.Text]">
+      <FormItem label="条码字段" name="codeFieldId">
+        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.codeFieldId" :field-type-list="[FieldType.Text]">
         </FieldSelect>
       </FormItem>
-      <FormItem label="出入库状态字段" required>
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="statusFieldId"
+      <FormItem label="出入库状态字段" name="statusFieldId">
+        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.statusFieldId"
           :field-type-list="[FieldType.SingleSelect]"></FieldSelect>
       </FormItem>
-      <FormItem label="日志字段">
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="logFieldId" :field-type-list="[FieldType.Text]">
+      <FormItem label="日志字段" name="logFieldId">
+        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.logFieldId" :field-type-list="[FieldType.Text]">
         </FieldSelect>
       </FormItem>
-      <FormItem label="模式" required>
-        <RadioGroup v-model:value="mode">
+      <FormItem label="模式" name="mode">
+        <RadioGroup v-model:value="form.mode">
           <RadioButton value="in">入库</RadioButton>
           <RadioButton value="out">出库</RadioButton>
         </RadioGroup>
       </FormItem>
-      <FormItem label="条码" required>
-        <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="code" @press-enter="onInput">
+      <FormItem label="条码" name="code">
+        <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="form.code" @press-enter="onInput">
         <template #suffix>
           <Spin v-if="loading" :size="'small'">
             <template #indicator>
