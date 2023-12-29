@@ -2,7 +2,7 @@
 import TableSelect from '@/components/TableSelect.vue'
 import FieldSelect from '@/components/FieldSelect.vue';
 import { Form, FormItem, RadioGroup, RadioButton, Input } from 'ant-design-vue'
-import { bitable } from '@lark-base-open/js-sdk';
+import { FieldType, bitable } from '@lark-base-open/js-sdk';
 import { ref } from 'vue';
 import { findRecord } from '@/utils/table'
 
@@ -56,13 +56,13 @@ const handleData = async () => {
         <TableSelect v-model:table-id="tableId"></TableSelect>
       </FormItem>
       <FormItem label="条码字段">
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="codeFieldId"></FieldSelect>
+        <FieldSelect v-model:table-id="tableId" v-model:field-id="codeFieldId" :field-type="[FieldType.Text]"></FieldSelect>
       </FormItem>
       <FormItem label="出入库状态字段">
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="statusFieldId"></FieldSelect>
+        <FieldSelect v-model:table-id="tableId" v-model:field-id="statusFieldId" :field-type="[FieldType.SingleSelect]"></FieldSelect>
       </FormItem>
       <FormItem label="日志字段">
-        <FieldSelect v-model:table-id="tableId" v-model:field-id="logFieldId"></FieldSelect>
+        <FieldSelect v-model:table-id="tableId" v-model:field-id="logFieldId" :field-type="[FieldType.Text]"></FieldSelect>
       </FormItem>
       <FormItem label="模式">
         <RadioGroup v-model:value="mode">
