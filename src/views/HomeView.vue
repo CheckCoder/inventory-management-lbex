@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, FormItem, RadioGroup, RadioButton, Input, message, Spin, type FormInstance } from 'ant-design-vue'
+import { Form, FormItem, RadioGroup, RadioButton, Input, message, Spin, Button, type FormInstance } from 'ant-design-vue'
 import { BarcodeOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { FieldType, bitable, IOpenSegmentType } from '@lark-base-open/js-sdk';
 import type { IOpenSegment, ISingleSelectField, IOpenSingleSelect, ITextField } from '@lark-base-open/js-sdk';
@@ -209,6 +209,12 @@ const handleData = async () => {
           <BarcodeOutlined v-else class="text-gray-500" />
         </template>
         </Input>
+      </FormItem>
+      <FormItem>
+        <div class="flex flex-row items-center">
+          <Button type="primary" @click="onSubmit" :loading="loading">确认</Button>
+          <div class="text-sm text-gray-400 ml-3">可在输入框按回车确认</div>
+        </div>
       </FormItem>
     </Form>
   </main>
