@@ -192,7 +192,7 @@ const handleData = async () => {
           :field-type-list="[FieldType.SingleSelect]" placeholder="只支持单选字段"></FieldSelect>
       </FormItem>
       <FormItem label="日志字段" name="logFieldId">
-        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.logFieldId" :field-type-list="[FieldType.Text]" placeholder="只支持文本字段">
+        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.logFieldId" :field-type-list="[FieldType.Text]" placeholder="只支持文本字段" allowClear>
         </FieldSelect>
       </FormItem>
       <FormItem label="模式" name="mode">

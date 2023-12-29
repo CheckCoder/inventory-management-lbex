@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<{
   tableId?: string
   fieldId?: string
   fieldTypeList?: FieldType[]
+  allowClear?: boolean
 }>(), {
   placeholder: '请选择字段',
 })
@@ -30,5 +31,5 @@ watchEffect(() => {
 
 </script>
 <template>
-  <Select :options="options" :placeholder="placeholder" :value="fieldId" @change="(fieldId) => $emit('update:fieldId', fieldId)"></Select>
+  <Select :options="options" :placeholder="placeholder" :value="fieldId" @change="(fieldId) => $emit('update:fieldId', fieldId)" :allow-clear="allowClear"></Select>
 </template>
