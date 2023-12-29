@@ -26,6 +26,7 @@ const onInput = async () => {
     message.error('正在处理上条数据中，请稍候')
     return
   }
+  loading.value = true
   try {
     await handleData()
   } catch (error) {
@@ -175,9 +176,9 @@ const handleData = async () => {
       <FormItem label="条码">
         <Input placeholder="光标聚焦到此，可扫码录入" v-model:value="code" @press-enter="onInput">
         <template #suffix>
-          <Spin v-if="true" :size="'small'">
+          <Spin v-if="loading" :size="'small'">
             <template #indicator>
-              <LoadingOutlined/>
+              <LoadingOutlined class="block mt-[1px]"/>
             </template>
           </Spin>
           <BarcodeOutlined v-else class="text-gray-500" />
