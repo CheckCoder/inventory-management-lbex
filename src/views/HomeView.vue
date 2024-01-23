@@ -49,6 +49,9 @@ bitable.base.getActiveTable().then(async (table) => {
   tableId.value = id
 })
 
+const inCount = ref(0)
+const outCount = ref(0)
+
 const loading = ref(false)
 const onSubmit = async () => {
   if (loading.value) {
@@ -174,6 +177,11 @@ const handleData = async () => {
     }
   }
   message.success(`${mode.value === 'in' ? '入库' : '出库'}成功`)
+  if (mode.value === 'in') {
+    inCount.value += 1
+  } else {
+    outCount.value += 1
+  }
 }
 
 </script>
@@ -219,6 +227,9 @@ const handleData = async () => {
           <div class="text-sm text-gray-400 ml-3">可在输入框按回车确认</div>
         </div>
       </FormItem>
+      <div>
+        本次入库：<span class="text-green-500">{{ inCount }}</span>，本次出库：<span class="text-red-500">{{ outCount }}</span>
+      </div>
     </Form>
   </main>
   <div class="h-[60px]"></div>
