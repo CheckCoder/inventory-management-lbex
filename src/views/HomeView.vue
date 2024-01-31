@@ -117,7 +117,8 @@ const handleData = async () => {
     }
     if (codeFieldValue.length === 0) {
       return false
-    } else if (codeFieldValue[0].text === code.value) {
+      // @ts-ignore
+    } else if (codeFieldValue[0].text === code.value || codeFieldValue[0].text === Number(code.value)) {
       return true
     }
     return false
