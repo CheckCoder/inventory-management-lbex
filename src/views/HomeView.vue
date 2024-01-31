@@ -2,7 +2,7 @@
 import { Form, FormItem, RadioGroup, RadioButton, Input, message, Spin, Button, type FormInstance } from 'ant-design-vue'
 import { BarcodeOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { FieldType, bitable, IOpenSegmentType } from '@lark-base-open/js-sdk';
-import type { IOpenSegment, ISingleSelectField, IOpenSingleSelect, ITextField } from '@lark-base-open/js-sdk';
+import type { IOpenSegment, ISingleSelectField, IOpenSingleSelect, ITextField, INumberField, IBarcodeField } from '@lark-base-open/js-sdk';
 import { ref, toRefs } from 'vue';
 import TableSelect from '@/components/TableSelect.vue'
 import FieldSelect from '@/components/FieldSelect.vue';
@@ -87,7 +87,7 @@ const handleData = async () => {
   }
 
   const table = await bitable.base.getTableById(tableId.value)
-  const codeField = await table.getFieldById<ITextField>(codeFieldId.value)
+  const codeField = await table.getFieldById<ITextField | INumberField | IBarcodeField>(codeFieldId.value)
   const statusField = await table.getFieldById<ISingleSelectField>(statusFieldId.value)
   const logField = logFieldId.value ? await table.getFieldById<ITextField>(logFieldId.value) : null
   const statusOptions = await statusField.getOptions()
@@ -149,8 +149,17 @@ const handleData = async () => {
     recordId = record.recordId
   } else {
     if (mode.value === 'in') {
+      const type = await codeField.getType()
+      let codeValue = code.value
+
+      if (type === FieldType.Number) {
+        // @ts-ignore
+        codeValue = Number(codeValue)
+      }
+
       recordId = await table.addRecord([
-        await codeField.createCell(code.value),
+        // @ts-ignore
+        await codeField.createCell(codeValue),
         await statusField.createCell(statusInOptionId),
       ])
     } else {
@@ -192,7 +201,7 @@ const handleData = async () => {
         <TableSelect v-model:table-id="form.tableId"></TableSelect>
       </FormItem>
       <FormItem label="条码字段" name="codeFieldId">
-        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.codeFieldId" :field-type-list="[FieldType.Text]" placeholder="只支持文本字段">
+        <FieldSelect v-model:table-id="form.tableId" v-model:field-id="form.codeFieldId" :field-type-list="[FieldType.Text, FieldType.Number, FieldType.Barcode]" placeholder="支持文本、数字和条码字段">
         </FieldSelect>
       </FormItem>
       <FormItem label="出入库状态字段" name="statusFieldId">
